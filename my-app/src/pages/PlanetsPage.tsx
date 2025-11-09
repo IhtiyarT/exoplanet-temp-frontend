@@ -3,6 +3,9 @@ import { fetchPlanets } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/planets.css";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from 'react-redux';
+import { type RootState } from '../store';
+import { setQuery } from '../store/filterSlice';
 
 type Planet = {
   planet_id: number;
@@ -19,10 +22,12 @@ export const PlanetsPage: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
-  const [query, setQuery] = useState<string>("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [cartCount, setCartCount] = useState<number>(0);
   const [systemId, setSystemId] = useState<number>(0);
+
+  const query = useSelector((state: RootState) => state.filter.query);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     resetAndLoad();
@@ -87,7 +92,7 @@ export const PlanetsPage: React.FC = () => {
     e.preventDefault();
     await resetAndLoad();
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  };  
 
   // handler for "Добавить" button — per template it's a <form> POST,
   // but here we only show a placeholder action (no backend write implemented)
@@ -106,9 +111,9 @@ export const PlanetsPage: React.FC = () => {
       <header>
         <div className="header-container">
           <div className="logo">
-            <a href="/">
+            <Link to="/">
               <img src="src/assets/logo.png" alt="Logo" />
-            </a>
+            </Link>
           </div>
           
           <div className="nav-links">
@@ -126,7 +131,7 @@ export const PlanetsPage: React.FC = () => {
                   name="query"
                   placeholder="Для поиска введите что-нибудь"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => dispatch(setQuery(e.target.value))}
                 />
                 <button className="find-button" type="submit" aria-label="Найти" />
               </form>
@@ -135,7 +140,7 @@ export const PlanetsPage: React.FC = () => {
 
       <nav style={{ padding: "10px 20px" }} aria-label="breadcrumb">
         <div>
-          <a href="/">Главная</a> &nbsp;/&nbsp; <span>Планеты</span>
+          <Link to="/">Главная</Link> &nbsp;/&nbsp; <span>Планеты</span>
         </div>
       </nav>
 
@@ -144,7 +149,7 @@ export const PlanetsPage: React.FC = () => {
       <div className="card-list" ref={scrollRef}>
         {planets.map((pl) => (
           <div className="card" key={pl.planet_id}>
-            <a href={`/planet/${pl.planet_id}`} className="card-image-link" title={pl.planet_title}>
+            <Link to={`/planet/${pl.planet_id}`} className="card-image-link" title={pl.planet_title}>
               <div className="card-image">
                 <img
                   src={pl.planet_image && pl.planet_image.length > 0 ? pl.planet_image : "/src/assets/DefaultImage.jpg"}
@@ -153,7 +158,7 @@ export const PlanetsPage: React.FC = () => {
                 />
                 <div className="card-title">{pl.planet_title}</div>
               </div>
-            </a>
+            </Link>
             <div className="card-footer">
               {/* <form
                 onSubmit={(e) => {
@@ -174,9 +179,9 @@ export const PlanetsPage: React.FC = () => {
       )}
 
       {cartCount > 0 ? (
-        <a href={`/temps-request/${systemId}`} className="planet-button">
+        <Link to={`/temps-request/${systemId}`} className="planet-button">
           <span className="cart-badge">{cartCount}</span>
-        </a>
+        </Link>
       ) : (
         <a className="planet-button disabled" />
       )}
