@@ -1,4 +1,5 @@
-import { PLANETS_MOCK } from "../modules/mock";
+import { PLANETS_MOCK } from "../src/modules/mock";
+import { getApiUrl } from "../src/utils/config";
 
 export type PlanetDTO = {
   planet_id: number;
@@ -33,7 +34,7 @@ export async function fetchPlanets(opts: FetchPlanetsOptions = {}): Promise<Fetc
   const url = `/api/planet?${params.toString()}`;
 
   try {
-    const res = await fetch(url, {
+    const res = await fetch(getApiUrl(url), {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -94,9 +95,20 @@ export async function fetchPlanetById(id: number) {
     return {
       planet_title: "Неизвестная планета",
       planet_description: "Описание недоступно.",
-      planet_image: "/src/assets/DefaultImage.jpg",
+      planet_image: null,
       albedo: 0,
     };
   }
 }
 
+export const getImageUrl = (filename: string | null | undefined): string => {
+  if (!filename || filename == '/DefaultImage.jpg') {
+    return '/exoplanet-temp-frontend/DefaultImage.jpg';
+  }
+
+  if (import.meta.env.DEV) {
+    return `/minio/minio-backend/${filename}`;
+  } else {
+    return `/exoplanet-temp-frontend/planets/${filename}`;
+  }
+};

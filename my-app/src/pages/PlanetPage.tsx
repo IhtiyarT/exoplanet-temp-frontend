@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { fetchPlanetById } from "../services/api";
+import { fetchPlanetById, getImageUrl } from "../../public/api";
 import "../styles/planet_style.css";
 
 type Planet = {
@@ -32,10 +32,6 @@ const PlanetPage: React.FC = () => {
     loadPlanet();
   }, [planet_id]);
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = "/src/assets/DefaultImage.jpg";
-  };
-
   if (loading) {
     return <div style={{ textAlign: "center", marginTop: "50px" }}>Загрузка...</div>;
   }
@@ -45,7 +41,7 @@ const PlanetPage: React.FC = () => {
       <div style={{ textAlign: "center", marginTop: "50px" }}>
         <h2>Планета не найдена</h2>
         <img
-          src="/src/assets/DefaultImage.jpg"
+          src="/exoplanet-temp-frontend/DefaultImage.jpg"
           alt="not found"
           style={{
             width: "300px",
@@ -65,7 +61,7 @@ const PlanetPage: React.FC = () => {
         <div className="header-container">
           <div className="logo">
             <Link to="/">
-              <img src="/src/assets/logo.png" alt="Logo" />
+              <img src="/exoplanet-temp-frontend/logo.png" alt="Logo" />
             </Link>
           </div>
           
@@ -87,15 +83,7 @@ const PlanetPage: React.FC = () => {
 
       <div className="planet-container">
         <div className="planet-image">
-          <img
-            src={
-              planet.planet_image && planet.planet_image.trim().length > 0
-                ? planet.planet_image
-                : "/src/assets/DefaultImage.jpg"
-            }
-            alt={planet.planet_title}
-            onError={handleImageError}
-          />
+          <img src={getImageUrl(planet.planet_image)} />
         </div>
         <div className="planet-details">
           <h1 className="title">{planet.planet_title}</h1>

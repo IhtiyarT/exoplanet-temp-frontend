@@ -30,7 +30,7 @@ html, body {
     height: 56px;
     display: flex;
     align-items: center;
-    background-image: url("../assets/bg.jpg");
+    background-image: url("/exoplanet-temp-frontend/bg.jpg");
     background-size: 250px 200px;
     border: none;
 }
@@ -72,6 +72,7 @@ html, body {
 .planet-image img {
     width: 400px;
     height: 400px;
+    max-width: 100%;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: block;
@@ -119,4 +120,56 @@ nav[aria-label="breadcrumb"] a {
 
 nav[aria-label="breadcrumb"] a:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .planet-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 0 20px;
+  }
+
+  .planet-image img {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .planet-details {
+    text-align: center;
+    width: 100%;
+  }
+
+  .back-button {
+    margin-left: 0;
+    text-align: center;
+    display: block;
+    margin: 20px auto 0;
+  }
+
+  nav[aria-label="breadcrumb"] {
+    margin-left: 20px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 500px) {
+  .planet-image img {
+    max-width: 280px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .planet-details {
+    font-size: 16px;
+  }
+
+  nav[aria-label="breadcrumb"] {
+    font-size: 14px;
+    margin: 15px 10px;
+  }
 }

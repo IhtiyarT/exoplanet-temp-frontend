@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, type FormEvent } from "react";
-import { fetchPlanets } from "../services/api";
+import { fetchPlanets, getImageUrl } from "../../public/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/planets.css";
 import { Link } from "react-router-dom";
@@ -101,18 +101,13 @@ export const PlanetsPage: React.FC = () => {
   //   alert(`Добавить планету id=${planetId}`);
   // };
 
-  const onImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const img = e.currentTarget;
-    img.src = "src/assets/DefaultImage.jpg";
-  };
-
   return (
     <div>
       <header>
         <div className="header-container">
           <div className="logo">
             <Link to="/">
-              <img src="src/assets/logo.png" alt="Logo" />
+              <img src="/exoplanet-temp-frontend/logo.png" alt="Logo" />
             </Link>
           </div>
           
@@ -151,11 +146,7 @@ export const PlanetsPage: React.FC = () => {
           <div className="card" key={pl.planet_id}>
             <Link to={`/planet/${pl.planet_id}`} className="card-image-link" title={pl.planet_title}>
               <div className="card-image">
-                <img
-                  src={pl.planet_image && pl.planet_image.length > 0 ? pl.planet_image : "/src/assets/DefaultImage.jpg"}
-                  alt={pl.planet_title}
-                  onError={onImageError}
-                />
+                <img src={getImageUrl(pl.planet_image)} />
                 <div className="card-title">{pl.planet_title}</div>
               </div>
             </Link>

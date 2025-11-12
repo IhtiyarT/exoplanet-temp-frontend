@@ -10,7 +10,7 @@ const HomePage: React.FC = () => {
         <div className="header-container">
           <div className="logo">
             <Link to="/">
-              <img src="/src/assets/logo.png" alt="Logo" />
+              <img src="/exoplanet-temp-frontend/logo.png" alt="Logo" />
             </Link>
           </div>
           
