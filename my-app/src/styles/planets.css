@@ -39,7 +39,7 @@ html, body {
     height: 56px;
     display: flex;
     align-items: center;
-    background-image: url("/exoplanet-temp-frontend/bg.jpg");
+    background-image: url("/bg.jpg");
     background-size: 250px 200px;
     border: none;
 }
@@ -92,7 +92,7 @@ html, body {
     height: 32px;
     border: none;
     cursor: pointer;
-    background-image: url("/exoplanet-temp-frontend/find.png");
+    background-image: url("/find.png");
     background-size: cover;
     border-radius: 0;
     background-color: white;
@@ -158,7 +158,7 @@ html, body {
 
 .card-footer {
     background: #153e69;
-    background-image: url("/exoplanet-temp-frontend/bg.jpg");
+    background-image: url("/bg.jpg");
     padding: 10px;
 }
 
@@ -194,7 +194,7 @@ html, body {
     border-radius: 50%;
     width: 85px;
     height: 85px;
-    background-image: url("/exoplanet-temp-frontend/planet_system.png");
+    background-image: url("/planet_system.png");
     background-size: 65px 65px;
     background-position: center;
     background-repeat: no-repeat;

@@ -8,7 +8,7 @@ import { store } from './store';
 function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter basename="/exoplanet-temp-frontend"> 
+      <BrowserRouter basename="/"> 
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/planets" element={<PlanetsPage />} />

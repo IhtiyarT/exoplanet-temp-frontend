@@ -103,12 +103,12 @@ export async function fetchPlanetById(id: number) {
 
 export const getImageUrl = (filename: string | null | undefined): string => {
   if (!filename || filename == '/DefaultImage.jpg') {
-    return '/exoplanet-temp-frontend/DefaultImage.jpg';
+    return '/DefaultImage.jpg';
   }
 
   if (import.meta.env.DEV) {
     return `/minio/minio-backend/${filename}`;
   } else {
-    return `/exoplanet-temp-frontend/planets/${filename}`;
+    return `/planets/${filename}`;
   }
 };

@@ -41,7 +41,7 @@ const PlanetPage: React.FC = () => {
       <div style={{ textAlign: "center", marginTop: "50px" }}>
         <h2>Планета не найдена</h2>
         <img
-          src="/exoplanet-temp-frontend/DefaultImage.jpg"
+          src="/DefaultImage.jpg"
           alt="not found"
           style={{
             width: "300px",
@@ -61,7 +61,7 @@ const PlanetPage: React.FC = () => {
         <div className="header-container">
           <div className="logo">
             <Link to="/">
-              <img src="/exoplanet-temp-frontend/logo.png" alt="Logo" />
+              <img src="/logo.png" alt="Logo" />
             </Link>
           </div>
           

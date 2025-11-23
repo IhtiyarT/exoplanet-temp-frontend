@@ -1,19 +1,19 @@
 {
   "name": "Exoplanet`s Temperature",
   "short_name": "ExoTemp",
-  "start_url": "/exoplanet-temp-frontend",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#f5f7fa",
   "theme_color": "#153e69",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/exoplanet-temp-frontend/logo192.png",
+      "src": "/logo192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/exoplanet-temp-frontend/logo512.png",
+      "src": "/logo512.png",
       "type": "image/png",
       "sizes": "512x512"
     }

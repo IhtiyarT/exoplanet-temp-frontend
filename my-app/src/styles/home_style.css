@@ -33,7 +33,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  background-image: url("/exoplanet-temp-frontend/bg.jpg");
+  background-image: url("/bg.jpg");
   background-size: 250px 200px;
   border: none;
   padding-right: 40px;

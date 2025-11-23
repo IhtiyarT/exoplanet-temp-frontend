@@ -5,16 +5,16 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/exoplanet-temp-frontend',
+  base: './',
   server: {
     proxy: {
       "/api": {
-        target: "http://0.0.0.0:8082",
+        target: "http://127.0.0.1:8082",
         changeOrigin: true,
         secure: false,
       },
       "/minio": {
-        target: "http://0.0.0.0:9000",
+        target: "http://127.0.0.1:9000",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/minio/, ''),

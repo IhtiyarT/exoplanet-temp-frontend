@@ -2,10 +2,10 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "ExoTemp",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.turdiev.exotemp",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "https://192.168.56.1:3000",
+    "devUrl": "http://192.168.56.1:3000",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
   },
@@ -16,7 +16,9 @@
         "width": 1200,
         "height": 800,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "devtools": true,
+        "url": "https://192.168.56.1:3000"
       }
     ],
     "security": {
