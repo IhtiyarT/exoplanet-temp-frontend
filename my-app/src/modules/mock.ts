@@ -1,6 +1,6 @@
-import { type PlanetDTO } from "../../public/api";
+import { type Planet } from "../store/planetSlice";
 
-export const PLANETS_MOCK: PlanetDTO[] = [
+export const PLANETS_MOCK: Planet[] = [
   {
     planet_id: 1,
     planet_title: "Горячий Юпитер",

@@ -1,0 +1,139 @@
+.requests-list-page {
+  font-family: 'Open Sans', Arial, sans-serif;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.requests-list-page .header-container {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.requests-list-page .logo img {
+  width: 72px;
+  height: 16px;
+  margin: 12px 20px;
+}
+
+.requests-list-page .navigation-bar {
+  height: 56px;
+  background: url("/bg.jpg") center / 250px 200px;
+}
+
+.req-breadcrumb {
+  padding: 12px 40px;
+  background: white;
+  font-size: 14px;
+  color: #666;
+  border-bottom: 1px solid #eee;
+}
+
+.req-breadcrumb a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.req-main {
+  max-width: 1300px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.req-title {
+  text-align: center;
+  font-size: 30px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.req-empty {
+  text-align: center;
+  padding: 80px 20px;
+  font-size: 20px;
+  color: #666;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  border: 2px solid #326C90;
+}
+
+.req-table-wrapper {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  border: 2px solid #326C90;
+}
+
+.req-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.req-table th {
+  background: #326C90;
+  color: white;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.req-table th:hover {
+  background: #2a5b7a;
+}
+
+.req-table td {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.req-table tr:hover {
+  background: #f8f9fa;
+}
+
+.req-status {
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 100px;
+  text-align: center;
+}
+
+.req-action-btn {
+  background: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.req-action-btn.success {
+  background: #28a745;
+}
+
+.req-action-btn:hover {
+  opacity: 0.9;
+}
+
+.req-action-disabled {
+  color: #999;
+  font-style: italic;
+}
+
+.req-loading {
+  text-align: center;
+  padding: 100px;
+  font-size: 20px;
+  color: #666;
+}
