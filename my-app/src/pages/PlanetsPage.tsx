@@ -36,13 +36,20 @@ export const PlanetsPage: React.FC = () => {
   };
 
   const onAdd = async (planetId: number) => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      alert("Требуется авторизация");
+      return;
+    }
 
     try {
+      console.log("Добавляем планету:", planetId);
+      console.log("Токен в Redux:", localStorage.getItem("token")?.substring(0, 20) + "...");
+      
       await api.api.planetAddCreate(planetId);
       dispatch(fetchPlanets(query.trim() || undefined));
     } catch (err) {
-      alert("Не удалось добавить планету: " + err)
+      console.error("Ошибка при добавлении планеты:", err);
+      alert("Не удалось добавить планету: " + err);
     }
   };
 

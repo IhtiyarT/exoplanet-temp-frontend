@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import { api } from "../api";
+import { fetchPlanetSystems, moderatePlanetSystem } from "../store/systemSlice";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store";
 import "../styles/requests_list.css";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
@@ -13,48 +16,62 @@ interface PlanetSystem {
   star_type: string;
   star_luminosity: number;
   planet_count: number;
-  status: "draft" | "formed" | "in_progress" | "completed" | "rejected";
+  planet_temp_count: number;
+  status: string;
   created_at: string;
+  user_login: string;
 }
 
-const statusLabels: Record<PlanetSystem["status"], string> = {
-  draft: "Черновик",
-  formed: "Сформирована",
-  in_progress: "В обработке",
-  completed: "Завершена",
-  rejected: "Отклонена",
+interface ListParams {
+  start_date?: string;
+  end_date?: string;
+  system_status?: string;
+}
+
+const statusLabels: Record<string, string> = {
+  Черновик: "Черновик",
+  Сформирована: "Сформирована",
+  Завершена: "Завершена",
+  Отклонена: "Отклонена",
+  Удалена: "Удалена",
 };
 
-const statusColors: Record<PlanetSystem["status"], string> = {
-  draft: "#6c757d",
-  formed: "#007bff",
-  in_progress: "#ffc107",
-  completed: "#28a745",
-  rejected: "#dc3545",
-};
-
-const normalizeStatus = (status: string): PlanetSystem["status"] => {
-  const s = status.trim().toLowerCase();
-
-  if (s.includes("чер")) return "draft";
-  if (s.includes("сформ")) return "formed";
-  if (s.includes("обраб")) return "in_progress";
-  if (s.includes("заверш")) return "completed";
-  if (s.includes("отклон")) return "rejected";
-
-  return "draft";
+const statusColors: Record<string, string> = {
+  Черновик: "#6c757d",
+  Сформирована: "#007bff",
+  Завершена: "#28a745",
+  Отклонена: "#dc3545",
+  Удалена: "#343a40",
 };
 
 const RequestsListPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-  
 
-  const [systems, setSystems] = useState<PlanetSystem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const systems = useSelector((s: RootState) => s.systems.systems);
+  const loading = useSelector((s: RootState) => s.systems.loading);
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [creatorFilter, setCreatorFilter] = useState("");
+
   const [sortField, setSortField] = useState<keyof PlanetSystem | "">("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+  const isModerator = user?.role === 2 || user?.role === 3;
+
+  const loadSystems = useCallback(() => {
+    if (!isAuthenticated) return;
+
+    const params: ListParams = {
+      start_date: startDate || undefined,
+      end_date: endDate || undefined,
+    };
+
+    dispatch(fetchPlanetSystems(params));
+  }, [isAuthenticated, startDate, endDate, dispatch]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -62,42 +79,40 @@ const RequestsListPage: React.FC = () => {
       return;
     }
 
-    const loadSystems = async () => {
-      try {
-        const resp = await api.api.planetSystemListList();
+    dispatch(fetchPlanetSystems({}));
+  }, [isAuthenticated, navigate, dispatch]);
 
-        const data = resp.data;
+  const filteredSystems = useMemo(() => {
+    let result = systems;
 
-        console.log("RAW RESPONSE:", data);
+    if (statusFilter) {
+      result = result.filter((s) => s.status === statusFilter);
+    }
 
-        let list: PlanetSystem[] = [];
+    if (creatorFilter) {
+      result = result.filter((s) =>
+        s.user_login.toLowerCase().includes(creatorFilter.toLowerCase())
+      );
+    }
 
-        if (data && Array.isArray(data.planet_systems)) {
-          list = data.planet_systems.map((item) => ({
-            system_id: item.id,
-            star_name: item.star_name ?? "—",
-            star_type: item.star_type ?? "—",
-            star_luminosity: item.star_luminosity ?? 0,
-            planet_count: Array.isArray(item.planets) ? item.planets.length : 2,
-            status: normalizeStatus(item.status),
-            created_at: item.date_created ?? "",
-          }));
-        }
+    return result;
+  }, [systems, statusFilter, creatorFilter]);
 
-        console.log("PARSED SYSTEMS:", list);
+  const sortedSystems = useMemo(() => {
+    if (!sortField) return filteredSystems;
 
-        setSystems(list);
-      } catch (err) {
-        console.error(err);
-        alert("Не удалось загрузить список заявок");
-        setSystems([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    return [...filteredSystems].sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
 
-    loadSystems();
-  }, [isAuthenticated, navigate]);
+      if (aVal == null || aVal === "") return 1;
+      if (bVal == null || bVal === "") return -1;
+
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredSystems, sortField, sortOrder]);
 
   const handleSort = (field: keyof PlanetSystem) => {
     if (sortField === field) {
@@ -108,24 +123,23 @@ const RequestsListPage: React.FC = () => {
     }
   };
 
-  const sortedSystems = React.useMemo(() => {
-    if (!sortField) return systems;
+  const handleModerAction = async (systemId: number, newStatus: "Завершена" | "Отклонена") => {
+    try {
+      const result = await dispatch(moderatePlanetSystem({ systemId, newStatus }));
+      
+      if (result.meta.requestStatus === "fulfilled") {
+        setTimeout(() => loadSystems(), 300);
+      }
+    } catch (err) {
+      console.error("Ошибка при изменении статуса заявки:", err);
+    }
+  };
 
-    return [...systems].sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
-
-      if (aVal == null) return 1;
-      if (bVal == null) return -1;
-
-      const result = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-      return sortOrder === "asc" ? result : -result;
-    });
-  }, [systems, sortField, sortOrder]);
-
-  const formatDate = (date: string) => {
-    if (!date) return "—";
-    return new Date(date).toLocaleString("ru-RU", {
+  const formatDate = (dateStr?: string | number) => {
+    if (!dateStr) return "—";
+    const d = typeof dateStr === "number" ? new Date(dateStr) : new Date(String(dateStr));
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleString("ru-RU", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -144,38 +158,72 @@ const RequestsListPage: React.FC = () => {
             <Link to="/"><img src="/logo.png" alt="Logo" /></Link>
           </div>
           <div className="nav-links">
-                <Link to="/" className="nav-link">Главная</Link>
-                <Link to="/planets" className="nav-link">Планеты</Link>
-                <span className="nav-link active">Заявки</span>
-                {isAuthenticated ? (
-                    <>
-                    <Link to="/profile" className="nav-link">{user?.login}</Link>
-                    <button className="nav-link" onClick={() => dispatch(logout())}>
-                        Выйти
-                    </button>
-                    </>
-                ) : (
-                    <Link to="/login" className="nav-link">Войти</Link>
-                )}
-           </div>
+            <Link to="/" className="nav-link">Главная</Link>
+            <Link to="/planets" className="nav-link">Планеты</Link>
+            <span className="nav-link active">Заявки</span>
+            {isAuthenticated ? (
+              <>
+                <Link to="/profile" className="nav-link">{user?.login}</Link>
+                <button className="nav-link" onClick={() => dispatch(logout())}>Выйти</button>
+              </>
+            ) : (
+              <Link to="/login" className="nav-link">Войти</Link>
+            )}
+          </div>
         </div>
       </header>
 
       <div className="navigation-bar" />
 
-        <nav style={{ padding: "10px 20px" }} aria-label="breadcrumb">
-            <Link to="/">Главная</Link> &nbsp;/&nbsp;
-            <Link to="/planets">Планеты</Link> &nbsp;/&nbsp;
-            <span>Заявки</span>
-        </nav>
+      <nav style={{ padding: "10px 20px" }} aria-label="breadcrumb">
+        <Link to="/">Главная</Link> → <Link to="/planets">Планеты</Link> → <span>Заявки</span>
+      </nav>
 
       <main className="req-main">
-        <h1 className="req-title">Мои заявки на расчёт температур</h1>
+        <h1 className="req-title">
+          {isModerator ? "Все заявки (модератор)" : "Мои заявки на расчёт температур"}
+        </h1>
+
+        <div className="filters" style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="">Все статусы</option>
+            <option value="Сформирована">Сформирована</option>
+            <option value="Завершена">Завершена</option>
+            <option value="Отклонена">Отклонена</option>
+          </select>
+
+          <button
+            onClick={() => loadSystems()}
+            style={{
+              padding: "6px 12px",
+              background: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontWeight: "bold",
+            }}
+          >
+            Применить
+          </button>
+
+          {isModerator && (
+            <input
+              type="text"
+              placeholder="Фильтр по создателю"
+              value={creatorFilter}
+              onChange={(e) => setCreatorFilter(e.target.value)}
+              style={{ minWidth: "200px" }}
+            />
+          )}
+        </div>
 
         {systems.length === 0 ? (
           <div className="req-empty">
-            У вас пока нет заявок.{" "}
-            <Link to="/planets">Создать первую заявку</Link>
+            У вас пока нет заявок. <Link to="/planets">Создать первую заявку</Link>
           </div>
         ) : (
           <div className="req-table-wrapper">
@@ -183,23 +231,25 @@ const RequestsListPage: React.FC = () => {
               <thead>
                 <tr>
                   <th onClick={() => handleSort("star_name")}>
-                    Звезда {sortField === "star_name" && (sortOrder === "asc" ? "Up" : "Down")}
+                    Звезда {sortField === "star_name" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
-                  <th>Тип</th>
+                  <th>Тип звезды</th>
                   <th>Светимость</th>
                   <th onClick={() => handleSort("planet_count")}>
-                    Планет {sortField === "planet_count" && (sortOrder === "asc" ? "Up" : "Down")}
+                    Планет {sortField === "planet_count" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
+                  <th>Заполнено расчётов</th>
                   <th onClick={() => handleSort("status")}>
-                    Статус {sortField === "status" && (sortOrder === "asc" ? "Up" : "Down")}
+                    Статус {sortField === "status" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
                   <th onClick={() => handleSort("created_at")}>
-                    Создано {sortField === "created_at" && (sortOrder === "asc" ? "Up" : "Down")}
+                    Создано {sortField === "created_at" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
+                  {isModerator && <th>Создатель</th>}
                   <th>Действия</th>
+                  {isModerator && <th>Управление</th>}
                 </tr>
               </thead>
-
               <tbody>
                 {sortedSystems.map((sys) => (
                   <tr key={sys.system_id}>
@@ -207,35 +257,47 @@ const RequestsListPage: React.FC = () => {
                     <td>{sys.star_type}</td>
                     <td>{sys.star_luminosity}</td>
                     <td><strong>{sys.planet_count}</strong></td>
+                    <td><strong>{sys.planet_temp_count}</strong></td>
                     <td>
                       <span
                         className="req-status"
-                        style={{ backgroundColor: statusColors[sys.status] }}
+                        style={{ backgroundColor: statusColors[sys.status] || "#6c757d" }}
                       >
-                        {statusLabels[sys.status]}
+                        {statusLabels[sys.status] || sys.status}
                       </span>
                     </td>
                     <td>{formatDate(sys.created_at)}</td>
+                    {isModerator && <td>{sys.user_login}</td>}
                     <td>
-                      {sys.status === "draft" ? (
-                        <Link to="/temps-request" className="req-action-btn">
-                          Редактировать
-                        </Link>
-                      ) : sys.status === "completed" ? (
-                        <Link
-                          to={`/request/${sys.system_id}`}
-                          className="req-action-btn success"
-                        >
+                      {sys.status === "Черновик" ? (
+                        <Link to="/temps-request" className="req-action-btn">Редактировать</Link>
+                      ) : sys.status === "Завершена" ? (
+                        <Link to={`/request/${sys.system_id}`} className="req-action-btn success">
                           Результаты
                         </Link>
                       ) : (
                         <span className="req-action-disabled">Ожидание</span>
                       )}
                     </td>
+                    {isModerator && sys.status === "Сформирована" && (
+                      <td>
+                        <button
+                          onClick={() => handleModerAction(sys.system_id, "Завершена")}
+                          style={{ width: 100, height: 32, marginBottom: 6, marginRight: "8px", background: "#28a745", color: "white", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}
+                        >
+                          Завершить
+                        </button>
+                        <button
+                          onClick={() => handleModerAction(sys.system_id, "Отклонена")}
+                          style={{ width: 100, height: 32, background: "#dc3545", color: "white", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}
+                        >
+                          Отклонить
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
-
             </table>
           </div>
         )}

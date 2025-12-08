@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import filterReducer from './filterSlice';
 import planetsReducer from './planetSlice';
 import authReducer from './authSlice';
+import systemReducer from './systemSlice';
 
 export const store = configureStore({
   reducer: {
     filter: filterReducer,
     planets: planetsReducer,
     auth: authReducer,
+    systems: systemReducer,
   },
 });
 

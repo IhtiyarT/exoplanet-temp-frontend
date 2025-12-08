@@ -129,6 +129,7 @@
 .req-action-disabled {
   color: #999;
   font-style: italic;
+  margin-left: 8px;
 }
 
 .req-loading {

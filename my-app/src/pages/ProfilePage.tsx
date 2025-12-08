@@ -82,6 +82,7 @@ const ProfilePage: React.FC = () => {
   if (loading) return <div className="profile-loading">Загрузка профиля...</div>;
 
   let role = "Астрофизик";
+  console.log(user)
   if (profile && profile.role != '0' ) {
     role = "Астроном-верификатор";
   }
