@@ -77,9 +77,9 @@
   border-radius: 12px;
   padding: 20px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
   gap: 30px;
-  flex-wrap: wrap;
   margin-bottom: 30px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
@@ -88,6 +88,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: nowrap;
 }
 
 .temps-label {
@@ -204,11 +205,15 @@
   font-size: 16px;
   align-self: flex-end;
   margin-top: 10px;
+  min-width: 120px;
 }
 
 .temps-submit-wrapper {
   text-align: center;
   margin: 50px 0;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
 }
 
 .temps-submit-btn {
@@ -224,6 +229,53 @@
 
 .temps-submit-btn:hover {
   background: #218838;
+}
+
+.temps-delete-system-btn {
+  background: #dc3545;
+  color: white;
+  font-size: 18px;
+  padding: 14px 40px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(220,53,69,0.3);
+}
+
+.temps-delete-system-btn:hover {
+  background: #c82333;
+}
+
+.temps-save-star-btn {
+  background: #326C90;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+  justify-content: flex-end;
+}
+
+.temps-save-distance-btn {
+  background: #326C90;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  align-self: flex-end;
+  margin-top: 10px;
+  min-width: 120px;
+}
+
+.temps-card-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 10px;
 }
 
 .temps-loading, .temps-empty {

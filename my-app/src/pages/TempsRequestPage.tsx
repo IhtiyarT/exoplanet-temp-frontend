@@ -38,6 +38,8 @@ const TempsRequestPage: React.FC = () => {
     luminosity: 0,
   });
 
+  const [distances, setDistances] = useState<Record<number, number>>({});
+
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -59,9 +61,15 @@ const TempsRequestPage: React.FC = () => {
             type: data.star_type,
             luminosity: data.star_luminosity,
           });
+
+          const initial: Record<number, number> = {};
+          data.planets.forEach(p => {
+            initial[p.planet_id] = p.distance;
+          });
+          setDistances(initial);
         }
       } catch {
-        alert("Ошибка загрузки черновика");
+        console.log("Ошибка загрузки черновика");
         navigate("/planets");
       }
     };
@@ -69,9 +77,14 @@ const TempsRequestPage: React.FC = () => {
     loadDraft();
   }, [isAuthenticated, navigate]);
 
-  const updateDistance = async (planetId: number, value: string) => {
-    if (!system) return;
+  const handleDistanceChange = (planetId: number, value: string) => {
     const distance = parseFloat(value) || 0;
+    setDistances(prev => ({ ...prev, [planetId]: distance }));
+  };
+
+  const saveDistance = async (planetId: number) => {
+    if (!system) return;
+    const distance = distances[planetId] || 0;
 
     try {
       await api.api.temperatureReqPlanetUpdate(system.system_id, planetId, {
@@ -87,8 +100,39 @@ const TempsRequestPage: React.FC = () => {
           ),
         };
       });
+      console.log("Расстояние сохранено");
     } catch (err) {
       console.log(err);
+      console.log("Ошибка при сохранении расстояния");
+    }
+  };
+
+  const saveStar = async () => {
+    if (!system) return;
+
+    try {
+      await api.api.planetSystemUpdate(system.system_id, {
+        star_name: star.name,
+        star_type: star.type,
+        star_luminosity: star.luminosity,
+      });
+      console.log("Данные звезды сохранены");
+    } catch (err) {
+      console.log(err);
+      console.log("Ошибка при сохранении данных звезды");
+    }
+  };
+
+  const deleteSystem = async () => {
+    if (!system) return;
+
+    try {
+      await api.api.planetSystemDeleteDelete();
+      console.log("Заявка удалена");
+      navigate("/planets");
+    } catch (err) {
+      console.log(err);
+      console.log("Ошибка при удалении заявки");
     }
   };
 
@@ -107,7 +151,7 @@ const TempsRequestPage: React.FC = () => {
         };
       });
     } catch (err) {
-      alert(err);
+      console.log(err);
     }
   };
 
@@ -125,7 +169,7 @@ const TempsRequestPage: React.FC = () => {
 
       navigate("/planets");
     } catch {
-      alert("Ошибка при отправке");
+      console.log("Ошибка при отправке");
     }
   };
 
@@ -207,6 +251,9 @@ const TempsRequestPage: React.FC = () => {
               }
             />
             <span className="temps-unit"></span>
+            <button onClick={saveStar} className="temps-save-star-btn">
+              Сохранить
+            </button>
           </div>
         </div>
 
@@ -234,10 +281,8 @@ const TempsRequestPage: React.FC = () => {
                   <div className="temps-field">
                     <span className="temps-label">Расстояние до звезды –</span>
                     <input
-                      type="number"
-                      step="10"
-                      value={pl.distance}
-                      onChange={(e) => updateDistance(pl.planet_id, e.target.value)}
+                      value={pl.distance ?? distances[pl.planet_id]}
+                      onChange={(e) => handleDistanceChange(pl.planet_id, e.target.value)}
                       className="temps-distance-input"
                     />
                     <span className="temps-unit">млн км</span>
@@ -250,12 +295,21 @@ const TempsRequestPage: React.FC = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => removePlanet(pl.planet_id)}
-                  className="temps-delete-btn"
-                >
-                  Удалить
-                </button>
+                <div className="temps-card-buttons">
+                  <button
+                    onClick={() => saveDistance(pl.planet_id)}
+                    className="temps-save-distance-btn"
+                  >
+                    Сохранить
+                  </button>
+
+                  <button
+                    onClick={() => removePlanet(pl.planet_id)}
+                    className="temps-delete-btn"
+                  >
+                    Удалить
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -263,6 +317,9 @@ const TempsRequestPage: React.FC = () => {
 
         {system.planets.length > 0 && (
           <div className="temps-submit-wrapper">
+            <button onClick={deleteSystem} className="temps-delete-system-btn">
+              Удалить заявку
+            </button>
             <button onClick={submitRequest} className="temps-submit-btn">
               Сформировать заявку
             </button>

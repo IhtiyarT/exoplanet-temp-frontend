@@ -7,6 +7,7 @@ import TempsRequestPage from "./pages/TempsRequestPage";
 import RegisterPage from "./pages/RegisterPage";
 import RequestsListPage from "./pages/RequestListPage";
 import ProfilePage from "./pages/ProfilePage";
+import RequestViewPage from "./pages/TempsRequestResultPage";
 import { Provider } from 'react-redux';
 import { store } from './store';
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/requests" element={<RequestsListPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/request/:systemId" element={<RequestViewPage />} />
         </Routes>
       </BrowserRouter>
     </Provider>

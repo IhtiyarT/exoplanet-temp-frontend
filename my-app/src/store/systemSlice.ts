@@ -43,15 +43,15 @@ export const fetchPlanetSystems = createAsyncThunk<
     const arrayData = Array.isArray(rawData) ? rawData : rawData.planet_systems ?? [];
 
     const list: PlanetSystem[] = arrayData.map((item: any) => ({
-      system_id: item.id ?? item.system_id ?? 0,
-      star_name: item.star_name ?? item.starName ?? "—",
-      star_type: item.star_type ?? item.starType ?? "—",
-      star_luminosity: item.star_luminosity ?? item.starLuminosity ?? 0,
-      planet_count: item.planet_count ?? item.planetCount ?? 0,
-      planet_temp_count: item.planet_temp_count ?? item.planetTempCount ?? 0,
+      system_id: item.id ?? 0,
+      star_name: item.star_name ?? "—",
+      star_type: item.star_type ?? "—",
+      star_luminosity: item.star_luminosity ?? 0,
+      planet_count: item.planet_count ?? 0,
+      planet_temp_count: item.planet_temp_count ?? 0,
       status: item.status ?? item.system_status ?? "Черновик",
-      created_at: item.date_created ?? item.created_at ?? item.createdAt ?? "",
-      user_login: item.user_login ?? item.user?.login ?? item.user?.login ?? "",
+      created_at: item.date_created ?? item.created_at ?? "",
+      user_login: item.user_login ?? item.user?.login ?? "",
     }));
 
     return list;

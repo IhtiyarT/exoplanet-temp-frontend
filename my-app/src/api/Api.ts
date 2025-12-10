@@ -419,12 +419,12 @@ export class Api<
      * @tags planet-system
      * @name PlanetSystemPlanetsList
      * @summary Получить планетную систему с планетами по ID
-     * @request GET:/api/planet-system/{system_id}/planets
+     * @request GET:/api/planet-system/{system_id}
      * @secure
      */
     planetSystemPlanetsList: (systemId: number, params: RequestParams = {}) =>
       this.request<Record<string, any>, Record<string, any>>({
-        path: `/api/planet-system/${systemId}/planets`,
+        path: `/api/planet-system/${systemId}`,
         method: "GET",
         secure: true,
         type: ContentType.Json,

@@ -15,21 +15,10 @@ interface AuthState {
   error: string | null;
 }
 
-let parsedUser: User | null = null;
-try {
-  const rawUser = localStorage.getItem("user");
-  if (rawUser && rawUser !== "undefined" && rawUser !== "null") {
-    parsedUser = JSON.parse(rawUser);
-  }
-} catch {
-  parsedUser = null;
-}
-
-
 const initialState: AuthState = {
-  user: parsedUser,
-  token: localStorage.getItem("token") || null,
-  isAuthenticated: !!localStorage.getItem("token"),
+  user: null,
+  token: null,
+  isAuthenticated: false,
   loading: false,
   error: null,
 };
@@ -43,9 +32,9 @@ export const login = createAsyncThunk<
     const response = await api.api.userLoginCreate(credentials);
     const token = response.data.token;
     const user = response.data.user;
+  
+    localStorage.setItem("token", token)
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
     return { token, user };
   } catch (err) {
     const errorMessage =
@@ -62,21 +51,21 @@ export const logout = createAsyncThunk("auth/logout", async (_, { getState }) =>
   if (state.auth.token) {
     try {
       await api.api.userLogoutCreate();
-    } catch { /* empty */ }
+    } catch (err) {
+      const errorMessage =
+      err instanceof Error
+        ? err.message
+        : "Ошибка при выходе из аккаунта";
+
+      return console.log(errorMessage);
+    }
   }
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
 });
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    restoreAuth: (state) => {
-      if (state.token) {
-        state.isAuthenticated = true;
-      }
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -105,5 +94,4 @@ const authSlice = createSlice({
   },
 });
 
-export const { restoreAuth } = authSlice.actions;
 export default authSlice.reducer;

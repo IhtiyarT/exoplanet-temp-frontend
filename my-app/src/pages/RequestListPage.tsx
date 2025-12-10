@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -123,7 +122,17 @@ const RequestsListPage: React.FC = () => {
     }
   };
 
-  const handleModerAction = async (systemId: number, newStatus: "Завершена" | "Отклонена") => {
+  const handleRowClick = (systemId: number, event: React.MouseEvent) => {
+    if ((event.target as HTMLElement).tagName === 'BUTTON') {
+      return;
+    }
+    
+    navigate(`/request/${systemId}`);
+  };
+
+  const handleModerAction = async (systemId: number, newStatus: "Завершена" | "Отклонена", event: React.MouseEvent) => {
+    event.stopPropagation();
+
     try {
       const result = await dispatch(moderatePlanetSystem({ systemId, newStatus }));
       
@@ -191,7 +200,7 @@ const RequestsListPage: React.FC = () => {
             <option value="">Все статусы</option>
             <option value="Сформирована">Сформирована</option>
             <option value="Завершена">Завершена</option>
-            <option value="Отклонена">Отклонена</option>
+            {/* <option value="Отклонена">Отклонена</option> */}
           </select>
 
           <button
@@ -246,13 +255,17 @@ const RequestsListPage: React.FC = () => {
                     Создано {sortField === "created_at" && (sortOrder === "asc" ? "↑" : "↓")}
                   </th>
                   {isModerator && <th>Создатель</th>}
-                  <th>Действия</th>
                   {isModerator && <th>Управление</th>}
                 </tr>
               </thead>
               <tbody>
                 {sortedSystems.map((sys) => (
-                  <tr key={sys.system_id}>
+                  <tr 
+                    key={sys.system_id}
+                    onClick={(e) => handleRowClick(sys.system_id, e)}
+                    className="clickable-row"
+                    style={{ cursor: 'pointer' }}
+                  >
                     <td><strong>{sys.star_name}</strong></td>
                     <td>{sys.star_type}</td>
                     <td>{sys.star_luminosity}</td>
@@ -268,27 +281,16 @@ const RequestsListPage: React.FC = () => {
                     </td>
                     <td>{formatDate(sys.created_at)}</td>
                     {isModerator && <td>{sys.user_login}</td>}
-                    <td>
-                      {sys.status === "Черновик" ? (
-                        <Link to="/temps-request" className="req-action-btn">Редактировать</Link>
-                      ) : sys.status === "Завершена" ? (
-                        <Link to={`/request/${sys.system_id}`} className="req-action-btn success">
-                          Результаты
-                        </Link>
-                      ) : (
-                        <span className="req-action-disabled">Ожидание</span>
-                      )}
-                    </td>
                     {isModerator && sys.status === "Сформирована" && (
                       <td>
                         <button
-                          onClick={() => handleModerAction(sys.system_id, "Завершена")}
+                          onClick={(e) => handleModerAction(sys.system_id, "Завершена", e)}
                           style={{ width: 100, height: 32, marginBottom: 6, marginRight: "8px", background: "#28a745", color: "white", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}
                         >
                           Завершить
                         </button>
                         <button
-                          onClick={() => handleModerAction(sys.system_id, "Отклонена")}
+                          onClick={(e) => handleModerAction(sys.system_id, "Отклонена", e)}
                           style={{ width: 100, height: 32, background: "#dc3545", color: "white", border: "none", padding: "4px 8px", borderRadius: "4px", cursor: "pointer" }}
                         >
                           Отклонить

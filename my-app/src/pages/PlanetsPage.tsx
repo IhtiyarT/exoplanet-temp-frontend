@@ -14,6 +14,7 @@ import { logout } from "../store/authSlice";
 export const PlanetsPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated, user } = useAuth();
+  const token = useSelector((state: RootState) => state.auth.token);
 
   const query = useSelector((state: RootState) => state.filter.query);
   const { planets, loading, planetCount } = useSelector(
@@ -43,13 +44,12 @@ export const PlanetsPage: React.FC = () => {
 
     try {
       console.log("Добавляем планету:", planetId);
-      console.log("Токен в Redux:", localStorage.getItem("token")?.substring(0, 20) + "...");
+      console.log("Токен в Redux:", token?.substring(0, 20) + "...");
       
       await api.api.planetAddCreate(planetId);
       dispatch(fetchPlanets(query.trim() || undefined));
     } catch (err) {
       console.error("Ошибка при добавлении планеты:", err);
-      alert("Не удалось добавить планету: " + err);
     }
   };
 
